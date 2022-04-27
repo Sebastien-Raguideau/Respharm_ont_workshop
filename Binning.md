@@ -55,7 +55,7 @@ Conda environment are created as independant environment to everything else, you
 # Manual bioinformatic
 Let's create a Projects directory and work inside:
 
-    mkdir -p ~/AD_binning
+    mkdir -p $HOME2/AD_binning
 
 ## Assembly
 
@@ -86,7 +86,7 @@ Use the -h flag on megahit and try to craft a command line to launch the assembl
 <p>
 
 ```bash
-cd ~/data
+cd $HOME2/AD_binning
 ls $DATA/AD_small/*/*R1.fastq | tr "\n" "," | sed 's/,$//' > R1.csv
 ls $DATA/AD_small/*/*R2.fastq | tr "\n" "," | sed 's/,$//' > R2.csv
 megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 4 -o Assembly
@@ -162,8 +162,8 @@ samtools sort sample1.mapped.bam -o sample1.mapped.sorted.bam
 To run all samples we would place these steps in a shell script:
 
 ```bash
-cd ~/AD_binning
-rm ~/AD_binning/Map/*
+cd $HOME2/AD_binning
+rm $HOME2/AD_binning/Map/*
 
 for file in $DATA/AD_small/*/*R1.fastq
 do 
@@ -186,7 +186,7 @@ done
 The first step is to derive coverage from bam files. For this we can use metabat2 script. It takes bam files as inpute produce a table of mean coverage depth and std for each contigs in each sample.
 
 ```bash
-cd ~/AD_binning/Map
+cd $HOME2/AD_binning/Map
 jgi_summarize_bam_contig_depths --outputDepth depth.txt *.bam
 ```
 
@@ -196,7 +196,7 @@ Make a new subfolder Binning. Move the Coverage file into this and look into cra
 <p>
 
 ```bash
-cd ~/AD_binning
+cd $HOME2/AD_binning
 mkdir Binning
 mv Map/depth.txt Binning/depth.txt
 metabat2 -i Assembly/final.contigs.fa -a Binning/depth.txt -t 4 -o Binning/Bins/Bin
@@ -219,7 +219,7 @@ A bin is a group of contigs put together from looking at coverage/composition. H
 
 Checkm is an handy automated pipeline which will use marker set specifics to bacteria/Archea to assess contamination/completion.
 ```bash
-cd ~/Binning
+cd $HOME2/Binning
 checkm lineage_wf Bins/ checkm -x .fa
 ```
 
@@ -231,7 +231,7 @@ Instead you will need to import output pre-generated for this tutorial.
 
 ```bash
 rm -r checkm
-ln -s ~/home/ubuntu/software/Respharm_ont_workshop/checkm.out
+ln -s /home/ubuntu/software/Respharm_ont_workshop/checkm.out .
 ```
 </p>
 </details>
@@ -244,13 +244,13 @@ When doing metagenomic, it happens often that the MAGs you obtain are not in dat
 The gtdb toolkit does that for you:
 
 ```bash
-cd ~/AD_binning/Binning
+cd $HOME2/AD_binning/Binning
 gtdbtk classify_wf --cpus 4 --genome_dir Bins --out_dir gtdb --extension .fa --scratch_dir gtdb/scratch
 ```
 That will take too much time and we won't be able to go through it on the vm. Instead le'ts create a link to precomputed files:
 
 ```bash
-cd ~/AD_binning
+cd $HOME2/AD_binning
 ln -s /home/ubuntu/software/Respharm_ont_workshop/gtdb ./
 ```
 
@@ -305,8 +305,8 @@ rule Hello_world:
 
 Write that command in a file for instance with nano.
 ```bash
-mkdir -p ~/data/mydatalocal/AD_snakemake
-cd ~/data/mydatalocal/AD_snakemake
+mkdir -p ~/data/AD_snakemake
+cd ~/data/AD_snakemake
 nano hello.snake
 ```
 **Debuging:**
@@ -338,14 +338,14 @@ Here we could apply it to make it possible to create a file anywhere on the vm:
 
 ```bash
 rule Hello_world:
-    input: "~/requirerement.txt"
+    input: "/home/ubuntu/requirerement.txt"
     output: "{path}/snakemake.txt"
     shell: "echo HELLO WORLD > {output}"
 ```
 Let's try this new version:
 
 ```bash
-snakemake -s hello.snake ~/data/mydatalocal/snakemake.txt
+snakemake -s hello.snake ~/data/snakemake.txt
 ``` 
 ### Additional rule entries
 -   threads : number of threads the rule needs, default = 1
@@ -359,7 +359,7 @@ snakemake -s hello.snake ~/data/mydatalocal/snakemake.txt
 Example:
 ```bash
 rule Hello_world:
-    input: "~/requirerement.txt"
+    input: "/home/ubuntu/requirerement.txt"
     output: "{path}/snakemake.txt"
     threads: 100
     log: "{path}/log_hello.txt"
@@ -393,7 +393,7 @@ Let's all agree on working on a file called: "binning.snake"
 rule create megahit_files:
     output: R1 = "{path}/R1.csv",
             R2 = "{path}/R2.csv"
-    params: data = "/var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets/AD_small"
+    params: data = "/home/ubuntu/AD_small"
     shell:"""
         ls {params.data}/*/*R1.fastq | tr "\n" "," | sed 's/,$//' > {output.R1}
         ls {params.data}/*/*R2.fastq | tr "\n" "," | sed 's/,$//' > {output.R2}
@@ -461,8 +461,8 @@ To note:
 
 ```bash
 rule map_reads:
-    input: R1 = "/var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets/AD_small/{sample}/{sample}_R1.fastq",
-           R2 = "/var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets/AD_small/{sample}/{sample}_R1.fastq",
+    input: R1 = "/home/ubuntu/data/AD_small/{sample}/{sample}_R1.fastq",
+           R2 = "/home/ubuntu/data/AD_small/{sample}/{sample}_R1.fastq",
            index = "{path}/Assembly/index.done",
            assembly = "{path}/Assembly/final.contigs.fa"
     output: "{path}/Map/{sample}.mapped.sorted.bam"
@@ -483,78 +483,9 @@ Have a try at running current snakemake.
 Let's generate 1 sample .bam file
 
 ```bash
-snakemake -s binning.snake ~/data/mydatalocal/AD_snakemake/Map/sample1.mapped.sorted.bam --cores 4 --dry-run
+snakemake -s binning.snake $HOME2/AD_snakemake/Map/sample1.mapped.sorted.bam --cores 4 --dry-run
 ```
 If you are not under attack of multiple errors message, snakemake will have listed the series of task it plan to execute. That is the point of the "dry-run" option.
-
-Please add the errors messages you observe on slack so we can try to explain what they mean.
-
-<details><summary>If you are late, or you can't debug your snakemake </summary>
-<p>
-Use the file stored at:
-
-    ~/repos/Ebame21-Quince/binning.snake
-
-</p>
-</details>
-
-### Coverage
-The next command line is a bit troublesome to translate into snakemake since we will need some python coding skill.
-```bash
-jgi_summarize_bam_contig_depths --outputDepth depth.txt *.bam
-```
-We need to list all .bam file, one for each sample as input. First let's list all sample name with a python one-liner. Please copy these lines in the binning.snake file. 
-
-
-```python
-# import functions from basic python library
-import glob 
-from os.path import basename,dirname
-
-# create a string variable to store path
-DATA="/var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets/AD_small"
-# use the glob function to find all R1.fastq file in each folder of DATA
-# then only keep the directory name wich is also the sample name
-SAMPLES = [basename(dirname(file)) for file in glob.glob("%s/*/*_R1.fastq"%DATA)]
-```
-This create a list named SAMPLES, containing the name of each sample. 
-We create the snakemake rule:
-
-```bash
-rule generate_coverage:
-	input: expand("{{path}}/Map/{sample}.mapped.sorted.bam",sample=SAMPLES)
-	output: "{path}/Binning/depth.txt"
-	shell: "jgi_summarize_bam_contig_depths --outputDepth {output} {input}"
-```
-To note:
-
-- we use the function expand, it allows to create a list of element. Here {sample} will be replaced by element of SAMPLES. We need to use double {{}} on path, so that expand doesn't try to replace it.
-- you may want to use bash pattern matching here as in *.bam, but that won't work. Snakemake run that command before any task is run and before any .bam exist. Thus no bam file will be detected
-
-### Binning
-This one is comparatively easy to translate and use tricks we've went through before, try having a go:
-```bash
-metabat2 -i Assembly/final.contigs.fa -a Binning/depth.txt -t 4 -o Binning/Bins/Bin
-```
-
-<details><summary>solution </summary>
-<p>
-
-```bash
-rule metabat2:
-    input: asmbl = "{path}/Assembly/final.contigs.fa",
-           cov = "{path}/Binning/depth.txt"
-    params: "{path}/Binning/Bins/bin"
-    output: "{path}/Binning/metabat2.done"
-    threads: 4
-    shell: """
-    metabat2 -i {input.asmbl} -a {input.cov} -t {threads} -o {params}
-    touch {output}
-    """
-```
-</p>
-</details>
-
 
 ### To go further/summary
 
