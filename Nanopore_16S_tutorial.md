@@ -138,7 +138,7 @@ First let's load the library needed
 Lets load in R the 2 tables we just created. Please replace "PATH" by the correct value. 
 
     taxa = read.table("PATH",header=TRUE,sep="\t",na.strings="*",stringsAsFactors=F,row.names=1,check.names=FALSE)
-    
+    taxa[taxa==""]="NA"
     cnts = read.table("PATH",header=TRUE,sep="\t",na.strings="*",stringsAsFactors=F,row.names=1,check.names=FALSE)
 
 There is quite a number of option there, what do they mean? 
