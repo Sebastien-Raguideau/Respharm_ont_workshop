@@ -1,0 +1,9 @@
+Running pplacer v1.1.alpha13-0-g1ec7786 analysis on gtdb/align/gtdbtk.bac120.user_msa.fasta...
+Didn't find any reference sequences in given alignment file. Using supplied reference alignment.
+Pre-masking sequences... sequence length cut from 5037 to 4499.
+Determining figs... figs disabled.
+Allocating memory for internal nodes... done.
+Caching likelihood information on reference tree... done.
+Pulling exponents... done.
+Preparing the edges for baseball... done.
+working on Bin.3 (1/1)...
