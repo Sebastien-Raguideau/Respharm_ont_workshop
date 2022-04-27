@@ -60,7 +60,7 @@ def get_consistent_taxid(tax):
     ranks = [ranks_dict[rank] for rank in ['superkingdom',"kingdom","phylum", "class", "order","family", "genus", "species"]]
     return ranks
 
-def main(SILVA,input_folder,out,pid_min,breadth_min):
+def main(SILVA,input_folder,OUT,pid_min,breadth_min):
     SAMPLES = {basename(file).split("_mapped_sorted")[0]:file for file in glob.glob("%s/*.bam"%input_folder)}
 
     header_to_taxa = {header.rstrip().split(" ")[0]:header.rstrip().split(" ")[1].split(";") for header,seq in sfp(open(SILVA))}
