@@ -32,14 +32,7 @@ This will involve a collection of different software programs:
 
 <a name="coassembly"/>
 
-## Getting started (VM, ssh & env)
-
-For this tutorial we will use a VM generated from [EBAME-Quince (2021)](https://biosphere.france-bioinformatique.fr/catalogue/appliance/127/)
-**Please be  sure to use the ifb-core-cloud domain when launching**
-
-Please ssh to your vm using the -Y option so that X forwarding can be done. 
-
-    ssh -Y ubuntu@xxx.xxx.xxx.xxx 
+## Getting started (env)
 
 
 We use a [conda](https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf) env to install all dependencies, you don't need to install anything and all dependencies are available but only inside that environment.   
@@ -52,7 +45,7 @@ Try to check the command line help of megahit
 Conda environment are created as independant environment to everything else, you need to "activate" an environment to be able to access the sets of tools installed inside.
 
     conda env list
-    conda activate STRONG
+    conda activate workshop
     megahit -h
 
 </p>
@@ -62,19 +55,19 @@ Conda environment are created as independant environment to everything else, you
 # Manual bioinformatic
 Let's create a Projects directory and work inside:
 
-    mkdir -p ~/data/mydatalocal/AD_binning
+    mkdir -p ~/AD_binning
 
 ## Assembly
 
 All datasets for this tutorial can be found at 
 
-    /var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets
+    /home/ubuntu/data
 We have here different dataset subsampled so they can run in real time during the workshop.
 We are going to use reads from the AD_small folder. They come from an industrial anaerobic digester study we realised but correspond to only a few MAGs.
 
 For simplification sake, we are going to create a global variable:
 
-    export DATA=/var/autofs/ifb/public/teachdata/ebame/Quince-data-2021/Quince_datasets
+    export DATA=/home/ubuntu/data
 
 **This is a shell dependant command, you need to retype each time you reopen a terminal**
 
@@ -93,7 +86,7 @@ Use the -h flag on megahit and try to craft a command line to launch the assembl
 <p>
 
 ```bash
-cd ~/data/mydatalocal/AD_binning
+cd ~/data
 ls $DATA/AD_small/*/*R1.fastq | tr "\n" "," | sed 's/,$//' > R1.csv
 ls $DATA/AD_small/*/*R2.fastq | tr "\n" "," | sed 's/,$//' > R2.csv
 megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 4 -o Assembly
@@ -169,8 +162,8 @@ samtools sort sample1.mapped.bam -o sample1.mapped.sorted.bam
 To run all samples we would place these steps in a shell script:
 
 ```bash
-cd ~/data/mydatalocal/AD_binning
-rm ~/data/mydatalocal/AD_binning/Map/*
+cd ~/AD_binning
+rm ~/AD_binning/Map/*
 
 for file in $DATA/AD_small/*/*R1.fastq
 do 
@@ -193,7 +186,7 @@ done
 The first step is to derive coverage from bam files. For this we can use metabat2 script. It takes bam files as inpute produce a table of mean coverage depth and std for each contigs in each sample.
 
 ```bash
-cd ~/data/mydatalocal/AD_binning/Map
+cd ~/AD_binning/Map
 jgi_summarize_bam_contig_depths --outputDepth depth.txt *.bam
 ```
 
@@ -203,7 +196,7 @@ Make a new subfolder Binning. Move the Coverage file into this and look into cra
 <p>
 
 ```bash
-cd ~/data/mydatalocal/AD_binning
+cd ~/AD_binning
 mkdir Binning
 mv Map/depth.txt Binning/depth.txt
 metabat2 -i Assembly/final.contigs.fa -a Binning/depth.txt -t 4 -o Binning/Bins/Bin
@@ -226,7 +219,7 @@ A bin is a group of contigs put together from looking at coverage/composition. H
 
 Checkm is an handy automated pipeline which will use marker set specifics to bacteria/Archea to assess contamination/completion.
 ```bash
-cd ~/data/mydatalocal/AD_binning/Binning
+cd ~/Binning
 checkm lineage_wf Bins/ checkm -x .fa
 ```
 
@@ -238,7 +231,7 @@ Instead you will need to import output pre-generated for this tutorial.
 
 ```bash
 rm -r checkm
-ln -s ~/repos/Ebame21-Quince/checkm.out
+ln -s ~/home/ubuntu/software/Respharm_ont_workshop/checkm.out
 ```
 </p>
 </details>
@@ -251,11 +244,15 @@ When doing metagenomic, it happens often that the MAGs you obtain are not in dat
 The gtdb toolkit does that for you:
 
 ```bash
-cd ~/data/mydatalocal/AD_binning/Binning
-export GTDBTK_DATA_PATH=ifb/data/public/teachdata/ebame/Quince-data-2021/release202
+cd ~/AD_binning/Binning
 gtdbtk classify_wf --cpus 4 --genome_dir Bins --out_dir gtdb --extension .fa --scratch_dir gtdb/scratch
 ```
-That will take at least X min.
+That will take too much time and we won't be able to go through it on the vm. Instead le'ts create a link to precomputed files:
+
+```bash
+cd ~/AD_binning
+ln -s /home/ubuntu/software/Respharm_ont_workshop/gtdb ./
+```
 
 We obtain multiple files what are they?
 Look at summary files what information can we obtain.
