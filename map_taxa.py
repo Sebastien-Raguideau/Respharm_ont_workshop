@@ -113,4 +113,4 @@ if __name__ == "__main__":
     parser.add_argument("-i",default="0.95", help="minimum percent identity")
     parser.add_argument("-b",default="0.50", help="minimum breadth of coverage")
     args = parser.parse_args()
-    main(args.silva_db,args.folder,args.output,float(arg.i),float(arg.b))
+    main(args.silva_db,args.folder,args.output,float(args.i),float(args.b))
