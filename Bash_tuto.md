@@ -81,7 +81,7 @@ mkdir <yourname>
 ```  
 Then we will store the path to your personal directory inside a variable as before:
 ```bash
-export DATA=/home/ubuntu/<yourname>
+export HOME2=/home/ubuntu/<yourname>
 ```
 One issue is that these are only lasting for the current session.
 
