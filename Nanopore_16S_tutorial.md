@@ -87,7 +87,7 @@ Using samtool we can filter only those reads which are mapped to the silva datab
 For downstream analysis we needs the bam file to be sorted and indexed
 ```bash
 	samtools sort BC01.mapped.bam -o BC01.mapped.sorted.bam 
-	samtools index BC01.mapped.bam 
+	samtools index BC01.mapped.sorted.bam 
 ```
 What is indexing/sorting? 
 
