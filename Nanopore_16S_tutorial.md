@@ -97,9 +97,10 @@ To run all samples we would place these steps in a shell script:
 	cd $HOME2/Mystery_16S
 	rm $HOME2/Mystery_16S/Map/*
 
-	for file in $DATA/Mystery_16S/*.fq
+	for file in $DATA/mystery_16S/*.fq
 	do 
 		name=${file%.fastq.fq}
+		name=${file#*mystery_16S*}		
 		minimap2 -a -x map-ont  /home/ubuntu/software/silva_db/No_U_SILVA_138.fa $file | samtools view -b -F 4 - | samtools sort - > Map/$name.mapped.sorted.bam
 		samtools index Map/$name.mapped.sorted.bam
 	done
